@@ -12,7 +12,7 @@ time <- readRDS(system.file("test-data", "time.RDS", package = "BayesFMMM"))
 tot_mcmc_iters <- 150
 n_try <- 1
 k <- 2
-n_funct <- 50
+n_funct <- 40
 basis_degree <- 3
 n_eigen <- 3
 boundary_knots <- c(0, 1000)
@@ -23,9 +23,6 @@ est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                                 basis_degree, n_eigen, boundary_knots,
                                 internal_knots)
 B <- est1$B
-
-nu_1_true <-  x$B[[1]] %*% t(t(x$nu_true[1,]))
-nu_2_true <-  x$B[[1]] %*% t(t(x$nu_true[2,]))
 
 
 err_Z <- matrix(0, 50, 3)
