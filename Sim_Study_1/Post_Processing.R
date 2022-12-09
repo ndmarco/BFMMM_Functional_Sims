@@ -28,13 +28,13 @@ nu_1_true <-  x$B[[1]] %*% t(t(x$nu_true[1,]))
 nu_2_true <-  x$B[[1]] %*% t(t(x$nu_true[2,]))
 
 
-err_Z <- matrix(0, 25, 3)
-int_err_mean1 <- matrix(0, 25, 3)
-int_err_mean2 <- matrix(0, 25, 3)
-int_err_cov12 <- matrix(0, 25, 3)
-int_err_cov1 <- matrix(0, 25, 3)
-int_err_cov2 <- matrix(0, 25, 3)
-int_err_cov12 <- matrix(0, 25, 3)
+err_Z <- matrix(0, 50, 3)
+int_err_mean1 <- matrix(0, 50, 3)
+int_err_mean2 <- matrix(0, 50, 3)
+int_err_cov12 <- matrix(0, 50, 3)
+int_err_cov1 <- matrix(0, 50, 3)
+int_err_cov2 <- matrix(0, 50, 3)
+int_err_cov12 <- matrix(0, 50, 3)
 
 for(j in 1:3){
   if(j == 1){
@@ -46,7 +46,7 @@ for(j in 1:3){
   if(j == 3){
     dir <- "./160_obs/"
   }
-  for(i in 1:25){
+  for(i in 1:50){
     x <- readRDS(paste(dir, "sim", i, "/truth.RDS", sep=""))
     x$Phi_true <- x$Phi
     x$nu_true <- x$nu
@@ -144,11 +144,11 @@ for(j in 1:3){
 
 
 # Calculate norm of true structure
-norm_mu1 <- matrix(1, nrow = 25, ncol = 3)
-norm_mu2 <- matrix(1, nrow = 25, ncol = 3)
-norm_C1 <- matrix(1, nrow = 25, ncol = 3)
-norm_C2 <- matrix(1, nrow = 25, ncol = 3)
-norm_C12 <- matrix(1, nrow = 25, ncol = 3)
+norm_mu1 <- matrix(1, nrow = 50, ncol = 3)
+norm_mu2 <- matrix(1, nrow = 50, ncol = 3)
+norm_C1 <- matrix(1, nrow = 50, ncol = 3)
+norm_C2 <- matrix(1, nrow = 50, ncol = 3)
+norm_C12 <- matrix(1, nrow = 50, ncol = 3)
 for(j in 1:3){
   if(j == 1){
     dir <- "./40_obs/"
@@ -159,7 +159,7 @@ for(j in 1:3){
   if(j == 3){
     dir <- "./160_obs/"
   }
-  for(i in 1:25){
+  for(i in 1:50){
     x <- readRDS(paste(dir, "sim", i, "/truth.RDS", sep=""))
     x$Phi_true <- x$Phi
     x$nu_true <- x$nu
@@ -202,13 +202,13 @@ for(j in 1:3){
 
 
 
-  C1_RMSE <- matrix(0, 75, 2)
-  C1_RMSE[1:25,1] <- (int_err_cov1[,1] / norm_C1[,1])
-  C1_RMSE[1:25,2] <- 40
-  C1_RMSE[26:50,1] <- (int_err_cov1[,2] / norm_C1[,2])
-  C1_RMSE[26:50,2] <- 80
-  C1_RMSE[51:75,1] <- (int_err_cov1[,3] / norm_C1[,3])
-  C1_RMSE[51:75,2] <- 160
+  C1_RMSE <- matrix(0, 150, 2)
+  C1_RMSE[1:50,1] <- (int_err_cov1[,1] / norm_C1[,1])
+  C1_RMSE[1:50,2] <- 40
+  C1_RMSE[51:100,1] <- (int_err_cov1[,2] / norm_C1[,2])
+  C1_RMSE[51:100,2] <- 80
+  C1_RMSE[101:150,1] <- (int_err_cov1[,3] / norm_C1[,3])
+  C1_RMSE[101:150,2] <- 160
   C1_RMSE <- as.data.frame(C1_RMSE)
   colnames(C1_RMSE) <- c("R-MISE", "N")
   C1_RMSE$N <- as.factor(C1_RMSE$N)
@@ -216,13 +216,13 @@ for(j in 1:3){
     geom_boxplot() +  theme_classic() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                                               panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),
                                               legend.position = "none",plot.title = element_text(hjust = 0.5))
-  C2_RMSE <- matrix(0, 75, 2)
-  C2_RMSE[1:25,1] <- (int_err_cov2[,1] / norm_C2[,1])
-  C2_RMSE[1:25,2] <- 40
-  C2_RMSE[26:50,1] <- (int_err_cov2[,2] / norm_C2[,2])
-  C2_RMSE[26:50,2] <- 80
-  C2_RMSE[51:75,1] <- (int_err_cov2[,3] / norm_C2[,3])
-  C2_RMSE[51:75,2] <- 160
+  C2_RMSE <- matrix(0, 150, 2)
+  C2_RMSE[1:50,1] <- (int_err_cov2[,1] / norm_C2[,1])
+  C2_RMSE[1:50,2] <- 40
+  C2_RMSE[51:100,1] <- (int_err_cov2[,2] / norm_C2[,2])
+  C2_RMSE[51:100,2] <- 80
+  C2_RMSE[101:150,1] <- (int_err_cov2[,3] / norm_C2[,3])
+  C2_RMSE[101:150,2] <- 160
   C2_RMSE <- as.data.frame(C2_RMSE)
   colnames(C2_RMSE) <- c("R-MISE", "N")
   C2_RMSE$N <- as.factor(C2_RMSE$N)
@@ -230,13 +230,13 @@ for(j in 1:3){
     geom_boxplot() +  theme_classic() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                                               panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),
                                               legend.position = "none",plot.title = element_text(hjust = 0.5))
-  C12_RMSE <- matrix(0, 75, 2)
-  C12_RMSE[1:25,1] <- (int_err_cov12[,1] / norm_C12[,1])
-  C12_RMSE[1:25,2] <- 40
-  C12_RMSE[26:50,1] <- (int_err_cov12[,2] / norm_C12[,2])
-  C12_RMSE[26:50,2] <- 80
-  C12_RMSE[51:75,1] <- (int_err_cov12[,3] / norm_C12[,3])
-  C12_RMSE[51:75,2] <- 160
+  C12_RMSE <- matrix(0, 150, 2)
+  C12_RMSE[1:50,1] <- (int_err_cov12[,1] / norm_C12[,1])
+  C12_RMSE[1:50,2] <- 40
+  C12_RMSE[51:100,1] <- (int_err_cov12[,2] / norm_C12[,2])
+  C12_RMSE[51:100,2] <- 80
+  C12_RMSE[101:150,1] <- (int_err_cov12[,3] / norm_C12[,3])
+  C12_RMSE[101:150,2] <- 160
   C12_RMSE <- as.data.frame(C12_RMSE)
   colnames(C12_RMSE) <- c("R-MISE", "N")
   C12_RMSE$N <- as.factor(C12_RMSE$N)
@@ -244,13 +244,13 @@ for(j in 1:3){
     geom_boxplot() +  theme_classic() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                                               panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),
                                               legend.position = "none",plot.title = element_text(hjust = 0.5))
-  mu1_RMSE <- matrix(0, 75, 2)
-  mu1_RMSE[1:25,1] <- (int_err_mean1[,1] / norm_mu1[,1])
-  mu1_RMSE[1:25,2] <- 40
-  mu1_RMSE[26:50,1] <- (int_err_mean1[,2] / norm_mu1[,2])
-  mu1_RMSE[26:50,2] <- 80
-  mu1_RMSE[51:75,1] <- (int_err_mean1[,3] / norm_mu1[,3])
-  mu1_RMSE[51:75,2] <- 160
+  mu1_RMSE <- matrix(0, 150, 2)
+  mu1_RMSE[1:50,1] <- (int_err_mean1[,1] / norm_mu1[,1])
+  mu1_RMSE[1:50,2] <- 40
+  mu1_RMSE[51:100,1] <- (int_err_mean1[,2] / norm_mu1[,2])
+  mu1_RMSE[51:100,2] <- 80
+  mu1_RMSE[101:150,1] <- (int_err_mean1[,3] / norm_mu1[,3])
+  mu1_RMSE[101:150,2] <- 160
   mu1_RMSE <- as.data.frame(mu1_RMSE)
   colnames(mu1_RMSE) <- c("R-MISE", "N")
   mu1_RMSE$N <- as.factor(mu1_RMSE$N)
@@ -258,13 +258,13 @@ for(j in 1:3){
     geom_boxplot() +  theme_classic() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                                               panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),
                                               legend.position = "none",plot.title = element_text(hjust = 0.5))
-  mu2_RMSE <- matrix(0, 75, 2)
-  mu2_RMSE[1:25,1] <- (int_err_mean2[,1] / norm_mu2[,1])
-  mu2_RMSE[1:25,2] <- 40
-  mu2_RMSE[26:50,1] <- (int_err_mean2[,2] / norm_mu2[,2])
-  mu2_RMSE[26:50,2] <- 80
-  mu2_RMSE[51:75,1] <- (int_err_mean2[,3] / norm_mu2[,3])
-  mu2_RMSE[51:75,2] <- 160
+  mu2_RMSE <- matrix(0, 150, 2)
+  mu2_RMSE[1:50,1] <- (int_err_mean2[,1] / norm_mu2[,1])
+  mu2_RMSE[1:50,2] <- 40
+  mu2_RMSE[51:100,1] <- (int_err_mean2[,2] / norm_mu2[,2])
+  mu2_RMSE[51:100,2] <- 80
+  mu2_RMSE[101:150,1] <- (int_err_mean2[,3] / norm_mu2[,3])
+  mu2_RMSE[101:150,2] <- 160
   mu2_RMSE <- as.data.frame(mu2_RMSE)
   colnames(mu2_RMSE) <- c("R-MISE", "N")
   mu2_RMSE$N <- as.factor(mu2_RMSE$N)
@@ -274,13 +274,13 @@ for(j in 1:3){
                                               legend.position = "none",plot.title = element_text(hjust = 0.5))
 
 
-  Z_RMSE <- matrix(0, 75, 2)
-  Z_RMSE[1:25,1] <- err_Z[,1]
-  Z_RMSE[1:25,2] <- 40
-  Z_RMSE[26:50,1] <- err_Z[,2]
-  Z_RMSE[26:50,2] <- 80
-  Z_RMSE[51:75,1] <- err_Z[,3]
-  Z_RMSE[51:75,2] <- 160
+  Z_RMSE <- matrix(0, 150, 2)
+  Z_RMSE[1:50,1] <- err_Z[,1]
+  Z_RMSE[1:50,2] <- 40
+  Z_RMSE[51:100,1] <- err_Z[,2]
+  Z_RMSE[51:100,2] <- 80
+  Z_RMSE[101:150,1] <- err_Z[,3]
+  Z_RMSE[101:150,2] <- 160
   Z_RMSE <- as.data.frame(Z_RMSE)
   colnames(Z_RMSE) <- c("RMSE", "N")
   Z_RMSE$N <- as.factor(Z_RMSE$N)
