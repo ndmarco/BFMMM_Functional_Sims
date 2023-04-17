@@ -4,6 +4,7 @@ library(gridExtra)
 library(grDevices)
 library(ggplot2)
 
+setwd()
 ################################################
 ## Change relevant directories before running ##
 ################################################
@@ -20,7 +21,7 @@ subj_id <- sort(c(10,	11,	13,	14,	15,	23,	26,	30,	31,	35,	48,	49,	50,
                   433,	436,	438,	439,	440,	442,	444,	445,	446,	447,
                   448,	450,	451,	452,	453,	3019,	3024,	3026,	3029,	3032))
 
-load("/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/pa.dat.Rdata")
+load("./pa.dat.Rdata")
 chan_id <- c('FP1', 'FP2','F9','F7','F3','FZ','F4','F8','F10','T9','T7',
              'C3','CZ','C4','T8','T10','P9','P7','P3','PZ','P4','P8','P10','O1','O2')
 chan_id_sub <- c('F5', 'F6', 'T7', 'CZ', 'T8', 'PZ')
@@ -43,7 +44,7 @@ for(i in 1:nrow(electrode_loc)){
   }
 }
 ## Set Hyperparameters
-dir <- "/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/trace/"
+dir <- "./ASD_multivariate/trace/"
 n_files <- 19
 k <- 2
 basis_degree <- c(2,2,2)

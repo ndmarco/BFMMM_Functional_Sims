@@ -25,7 +25,7 @@ library(BayesFMMM)
 ######## trace10
 ## data
 
-setwd("/Users/nicholasmarco/Documents/Sim_test/")
+setwd()
 dir.create("2_clusters")
 dir.create("3_clusters")
 dir.create("4_clusters")
@@ -36,7 +36,7 @@ for(q in 1:10){
   ## Load sample data
   Y <- readRDS(system.file("test-data", "Sim_data.RDS", package = "BayesFMMM"))
   time <- readRDS(system.file("test-data", "time.RDS", package = "BayesFMMM"))
-  
+
   ## Set Hyperparameters
   tot_mcmc_iters <- 150
   n_try <- 1
@@ -46,7 +46,7 @@ for(q in 1:10){
   n_eigen <- 3
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
-  
+
   ## Run function
   x <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                                basis_degree, n_eigen, boundary_knots,
@@ -73,10 +73,10 @@ for(q in 1:10){
   Phi[,,1] <- matrix(Phi_1, nrow = 3)
   Phi[,,2] <- matrix(Phi_2, nrow = 3)
   Phi[,,3] <- matrix(Phi_3, nrow = 3)
-  
-  
+
+
   chi <- matrix(rnorm(n_obs *3, 0, 1), ncol = 3, nrow=n_obs)
-  
+
   Z <- matrix(0, nrow = n_obs, ncol = 3)
   alpha <- c(30, 1, 1)
   for(i in 1:(n_obs * 0.2)){
@@ -94,7 +94,7 @@ for(q in 1:10){
   for(i in (n_obs * 0.6 + 1):n_obs){
     Z[i,] <- rdirichlet(1, alpha)
   }
-  
+
   y <- rep(0,100)
   y <- rep(list(y), n_obs)
   time <- time[[1]]
@@ -113,8 +113,8 @@ for(q in 1:10){
   x <- list("y" = y, "nu" = nu, "Z" = Z, "Phi" = Phi, "Chi" = chi)
   saveRDS(x, paste("./data/data", q, ".RDS", sep = ""))
   Y <- y
-  
-  
+
+
   ####### 2 Clusters #########
   ############################
   ## Set Hyperparameters
@@ -127,7 +127,7 @@ for(q in 1:10){
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
   dir.create(paste0("2_clusters/trace", q))
-  
+
   ## Get Estimates of Z and nu
   est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                                   basis_degree, n_eigen, boundary_knots,
@@ -146,7 +146,7 @@ for(q in 1:10){
                                 est2$delta, est2$gamma, est2$Phi, est2$A,
                                 est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir_i,
                                 thinning_num = 10, r_stored_iters = 10000)
-  
+
   ####### 3 Clusters #########
   ############################
   ## Set Hyperparameters
@@ -159,7 +159,7 @@ for(q in 1:10){
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
   dir.create(paste0("3_clusters/trace", q))
-  
+
   ## Get Estimates of Z and nu
   est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                                   basis_degree, n_eigen, boundary_knots,
@@ -178,7 +178,7 @@ for(q in 1:10){
                                 est2$delta, est2$gamma, est2$Phi, est2$A,
                                 est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir_i,
                                 thinning_num = 10, r_stored_iters = 10000)
-  
+
   ####### 4 Clusters #########
   ############################
   ## Set Hyperparameters
@@ -191,7 +191,7 @@ for(q in 1:10){
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
   dir.create(paste0("4_clusters/trace", q))
-  
+
   ## Get Estimates of Z and nu
   est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                                   basis_degree, n_eigen, boundary_knots,
@@ -210,7 +210,7 @@ for(q in 1:10){
                                 est2$delta, est2$gamma, est2$Phi, est2$A,
                                 est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir_i,
                                 thinning_num = 10, r_stored_iters = 10000)
-  
+
   ####### 5 Clusters #########
   ############################
   ## Set Hyperparameters
@@ -223,7 +223,7 @@ for(q in 1:10){
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
   dir.create(paste0("5_clusters/trace", q))
-  
+
   ## Get Estimates of Z and nu
   est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                                   basis_degree, n_eigen, boundary_knots,

@@ -31,7 +31,6 @@ int_err_mean2 <- matrix(0, 50, 3)
 int_err_cov12 <- matrix(0, 50, 3)
 int_err_cov1 <- matrix(0, 50, 3)
 int_err_cov2 <- matrix(0, 50, 3)
-int_err_cov12 <- matrix(0, 50, 3)
 
 for(j in 1:3){
   if(j == 1){

@@ -1,6 +1,8 @@
+library(funFEM)
 ### Real Case study
 library(BayesFMMM)
-setwd()
+
+setwd("")
 
 #################################################################
 ## Change relevant directories and make folders before running ##
@@ -52,41 +54,78 @@ Y$ID <- paste(Y$ID, Y$reg, sep = ".")
 Y <- reshape(Y[,c(1,3,6)], idvar = "ID", timevar = "func", direction = "wide")
 Y <- Y[,-1]
 Y <- as.matrix(Y)
+matplot(t(Y), type = "l")
 
-#get rid of ID value
-library(reshape2)
-library(ggplot2)
 
-Y <- split(Y, seq(nrow(Y)))
+######################
+## Factor Analysis ###
+######################
+Y <- as.data.frame(Y)
+fa_model <- factanal(Y[,1:32]- colMeans(Y[,1:32]),factors = 2)
+plot(fa_model$loadings[,1])
+plot(fa_model$loadings[,2])
+# time <-(rep(seq(6,14, 0.25), nrow(Y)))
+# x <- as.vector(t(Y))
+#
+# curve <- rep(0, length(time))
+# for(i in 1:nrow(Y)){
+#   curve[((i-1)*33 + 1):(i*33)] <- i
+# }
+#
+# data <- list(x, time, curve)
+# names(data) <- c("x", "time", "curve")
+#
+# m2 <- mocca(data, K = 2,q=8,h=1,lambda=1e-10,n.cores=2,EMstep.tol=1e-3)
+# m2
+basis <- create.bspline.basis(c(6,14), basis = 50, norder = 6)
+fdobj <- smooth.basis(seq(6,14, 0.25), t(Y), basis)$fd
+res<- funFEM(fdobj, K = 2)
+par(mfrow=c(1,2))
+#plot(fdobj, color=res$cls)
+fdmeans <- fdobj
+fdmeans$coefs <- t(res$prms$my)
+plot(fdmeans, col=1:max(res$cls), lwd=2, xlab = "Frequency", ylab = " ")
+
+matplot(seq(6,14,0.25), t(Y[1:10,]), type = "l", col = res$cls[1:10],xlab = "Frequency", ylab = " " )
+
+res1<- funFEM(fdobj, K = 3)
+res2<- funFEM(fdobj, K = 4)
+res3<- funFEM(fdobj, K = 5)
+res4<- funFEM(fdobj, K = 6)
+res5<- funFEM(fdobj, K = 7)
+par(mfrow=c(1,2))
+#plot(fdobj, color=res$cls)
+fdmeans <- fdobj
+fdmeans$coefs <- t(res$prms$my)
+plot(fdmeans, col=1:max(res$cls), lwd=2, xlab = "Frequency", ylab = " ")
+
+matplot(seq(6,14,0.25), t(Y[1:10,]), type = "l", col = res$cls[1:10],xlab = "Frequency", ylab = " " )
+
+fun_pca <- pca.fd(fdobj,nharm = 2)
+plot(fun_pca$harmonics)
+
+library(fdapace)
+y_list <- split(Y, seq(nrow(Y)))
 time <- seq(6, 14, 0.25)
 time <- rep(list(time), 97)
 
-tot_mcmc_iters <- 2000
-n_try <- 50
-k <- 2
-n_funct <- 97
-basis_degree <- 3
-n_eigen <- 3
-boundary_knots <- c(6, 14)
-internal_knots <- c(7.6, 9.2, 10.8, 12.4)
+FPCAobj <- FPCA(y_list, time)
+plot(FPCAobj)
 
-## Get Estimates of Z and nu
-est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
-                                basis_degree, n_eigen, boundary_knots,
-                                internal_knots)
-tot_mcmc_iters <- 4000
-n_try <- 5
-## Get estimates of other parameters
-est2 <- BFMMM_Theta_est(tot_mcmc_iters, n_try, k, Y, time, n_funct,
-                        basis_degree, n_eigen, boundary_knots,
-                        internal_knots, est1$Z, est1$nu)
+signal_ratio <- readRDS("./signal_ratio.rds")
+demDat <- cbind(demDat, signal_ratio)
 
-dir = "./trace/"
-tot_mcmc_iters <- 500000
-MCMC.chain <-BFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
-                              basis_degree, n_eigen, boundary_knots,
-                              internal_knots, est1$Z, est1$pi, est1$alpha_3,
-                              est2$delta, est2$gamma, est2$Phi, est2$A,
-                              est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir,
-                              thinning_num = 10, r_stored_iters = 10000)
+signal_ratio_ph <- signal_ratio$id
+pa_id <- pa.dat$ID[pa.dat$reg == 15 & pa.dat$func == 6]
+for(i in 1:length(signal_ratio)){
+  signal_ratio_ph[i] <- signal_ratio[demDat$ID == pa_id[i]]
+}
+
+library(ggplot2)
+
+df <- cbind(FPCAobj$xiEst[,1:2], signal_ratio)
+df <- as.data.frame(df)
+colnames(df) <- c("FPC 1", "FPC 2", "Sig_ratio")
+
+ggplot(df, aes(`FPC 1`, `FPC 2`, colour = Sig_ratio)) + geom_point() + scale_color_gradient(low="blue", high="red") + theme_bw()
 

@@ -1,6 +1,7 @@
 library(BayesFMMM)
 library(eegkit)
 
+setwd()
 #################################################################
 ## Change relevant directories and make folders before running ##
 #################################################################
@@ -17,7 +18,7 @@ subj_id <- sort(c(10,	11,	13,	14,	15,	23,	26,	30,	31,	35,	48,	49,	50,
                   433,	436,	438,	439,	440,	442,	444,	445,	446,	447,
                   448,	450,	451,	452,	453,	3019,	3024,	3026,	3029,	3032))
 
-load("/Users/user/Projects/Simulation/real_data/pa.dat.Rdata")
+load("./pa.dat.Rdata")
 chan_id <- c('FP1', 'FP2','F9','F7','F3','FZ','F4','F8','F10','T9','T7',
              'C3','CZ','C4','T8','T10','P9','P7','P3','PZ','P4','P8','P10','O1','O2')
 ## Get coordinates
@@ -73,11 +74,12 @@ est1 <- BHDFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
 est2 <- BHDFMMM_Theta_est(tot_mcmc_iters, k, Y, time, n_funct,
                           basis_degree, n_eigen, boundary_knots,
                           internal_knots, est1$Z, est1$nu)
+dir <- "./HD_trace"
 
 MCMC.chain <-BHDFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                                 basis_degree, n_eigen, boundary_knots,
                                 internal_knots, est1$Z, est1$pi, est1$alpha_3,
                                 est2$delta, est2$gamma, est2$Phi, est2$A,
-                                est1$nu, est1$tau, est2$sigma, est2$chi)
+                                est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir)
 
 

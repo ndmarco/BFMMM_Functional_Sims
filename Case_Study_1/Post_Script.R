@@ -3,6 +3,7 @@ library(BayesFMMM)
 #################################################
 ## Change relevant directories  before running ##
 #################################################
+setwd()
 
 ### Peak alpha data
 library(pracma)
@@ -24,12 +25,12 @@ chan_id <- c('FP1', 'FP2','F9','F7','F3','Fz','F4','F8','F10','T9','T7',
              'C3','CZ','C4','T8','T10','P9','P7','P3','PZ','P4','P8','P10','O1','O2')
 
 # Demographic Data
-demDat <- read.csv(file='/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/demographic_data.csv', header = TRUE)
+demDat <- read.csv(file='./demographic_data.csv', header = TRUE)
 colnames(demDat) <- c("ID", "Gender", "Age", "Group", "VIQ", "NVIQ")
 demDat <- demDat[which(demDat$ID %in% subj_id), ]
 
 # Peak Alpha Data
-load("/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/pa.dat.Rdata")
+load("./pa.dat.Rdata")
 # ID: subject ID
 # group: TD(1) or ASD (2)
 # func: frequency domain
@@ -62,7 +63,7 @@ n_eigen <- 3
 boundary_knots <- c(6, 14)
 internal_knots <- c(7.6, 9.2, 10.8, 12.4)
 time <- seq(6, 14, 0.01)
-dir <- "/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/Univariate/trace3/"
+dir <- "./trace/"
 ### get credible intervals for mean
 mean_1 <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 3)
 plot(time,mean_1$CI_50, type = 'l')
