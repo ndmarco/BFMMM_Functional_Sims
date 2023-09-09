@@ -64,7 +64,7 @@ color.gradient <- function(x, colors=c("royalblue", "red"), colsteps=100) {
 ph <- c(CI1$CI_50, CI2$CI_50)
 cols <- color.gradient(ph)
 
-jpeg("/Users/user/Desktop/images/")
+jpeg("./images/")
 for(i in 1:length(func)){
   par(mfrow = c(1,2))
   # par(fig=c(0,0.45,0.4,1))
@@ -89,7 +89,7 @@ ph <- diag(Cov1$CI_50)
 Cov1 <- HDFCovCI(dir, n_files, n_MCMC = 100, time2, time2, basis_degree, boundary_knots, internal_knots, 1,1)
 ph <- c(ph, diag(Cov1$CI_50))
 
-#saveRDS(Cov1, "/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/cov1_6hz.RDS")
+#saveRDS(Cov1, "./ASD_multivariate/cov1_6hz.RDS")
 Cov2 <- HDFCovCI(dir, n_files, n_MCMC = 100, time1, time1, basis_degree, boundary_knots, internal_knots, 2,2)
 ph <- c(ph, diag(Cov2$CI_50))
 Cov2 <- HDFCovCI(dir, n_files, n_MCMC = 100, time2, time2, basis_degree, boundary_knots, internal_knots, 2,2)
@@ -104,12 +104,12 @@ eegcapdense(plotlabels = F, col.point = cols[978:1954])
 eegcapdense(plotlabels = F, col.point = cols[1:977])
 
 
-#saveRDS(Cov2, "/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/cov2_6hz.RDS")
+#saveRDS(Cov2, "/./ASD_multivariate/cov2_6hz.RDS")
 time[,3] <- 10
 Cov1 <- HDFCovCI(dir, n_files, n_MCMC = 100, time, time, basis_degree, boundary_knots, internal_knots, 1,1)
-#saveRDS(Cov1, "/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/cov1_10hz.RDS")
+#saveRDS(Cov1, "./ASD_multivariate/cov1_10hz.RDS")
 Cov2 <- HDFCovCI(dir, n_files, n_MCMC = 100, time, time, basis_degree, boundary_knots, internal_knots, 2,2)
-#saveRDS(Cov2, "/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/cov2_10hz.RDS")
+#saveRDS(Cov2, "./ASD_multivariate/cov2_10hz.RDS")
 
 ph <- c(diag(Cov1$CI_50), diag(Cov2$CI_50))
 cols <- color.gradient(ph)
@@ -150,7 +150,7 @@ p2 <- ggplot(data= x, aes(x = `Frequency (Hz)`, y = Power, color=Electrode )) + 
 
 grid.arrange(p2, p, ncol = 2)
 Z <- ZCI(dir, n_files)
-demDat <- read.csv(file='/Users/user/Box Sync/BayesFMMM_Supporting_Files/ASD_multivariate/demographic_data.csv', header = TRUE)
+demDat <- read.csv(file='./ASD_multivariate/demographic_data.csv', header = TRUE)
 colnames(demDat) <- c("ID", "Gender", "Age", "Group", "VIQ", "NVIQ")
 demDat <- demDat[which(demDat$ID %in% subj_id), ]
 data_Z <- data.frame("Cluster 1" = Z$CI_50[,2], "Clinical Diagnosis" = demDat$Group)

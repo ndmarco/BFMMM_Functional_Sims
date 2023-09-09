@@ -1,4 +1,12 @@
 ### Real Case study
+### Peak alpha data
+library(pracma)
+library(gridExtra)
+library(devtools)
+# Install BFMMM package from github
+# If already installed, do not run the following line
+install_github('ndmarco/BayesFMMM')
+
 library(BayesFMMM)
 setwd()
 
@@ -7,9 +15,7 @@ setwd()
 #################################################################
 
 
-### Peak alpha data
-library(pracma)
-library(gridExtra)
+
 # Subject ID
 subj_id <- sort(c(10,	11,	13,	14,	15,	23,	26,	30,	31,	35,	48,	49,	50,
                   53,	54,	55,	161,165,	184,	188,	189,	195,	201,
@@ -79,14 +85,12 @@ n_try <- 5
 ## Get estimates of other parameters
 est2 <- BFMMM_Theta_est(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                         basis_degree, n_eigen, boundary_knots,
-                        internal_knots, est1$Z, est1$nu)
+                        internal_knots, est1)
 
 dir = "./trace/"
 tot_mcmc_iters <- 500000
 MCMC.chain <-BFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                               basis_degree, n_eigen, boundary_knots,
-                              internal_knots, est1$Z, est1$pi, est1$alpha_3,
-                              est2$delta, est2$gamma, est2$Phi, est2$A,
-                              est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir,
+                              internal_knots, est1, est2, dir = dir,
                               thinning_num = 10, r_stored_iters = 10000)
 

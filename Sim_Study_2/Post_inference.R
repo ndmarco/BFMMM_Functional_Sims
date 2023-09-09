@@ -39,13 +39,13 @@ for(j in 1:4){
     dir_i <- paste(dir, "trace", i, "/", sep = "")
     Y <- readRDS(paste("./data/data", i, ".RDS", sep = ""))
     Y <- Y$y
-    AIC[i,j] <- Model_AIC(dir_i, 10, 1000, basis_degree, boundary_knots,
+    AIC[i,j] <- FAIC(dir_i, 10, basis_degree, boundary_knots,
                           internal_knots, time, Y)
-    BIC[i,j] <- Model_BIC(dir_i, 10, 1000, basis_degree, boundary_knots,
+    BIC[i,j] <- FBIC(dir_i, 10, basis_degree, boundary_knots,
                           internal_knots, time, Y)
-    DIC[i,j] <- Model_DIC(dir_i, 10, 1000, basis_degree, boundary_knots,
+    DIC[i,j] <- FDIC(dir_i, 10, basis_degree, boundary_knots,
                           internal_knots, time, Y)
-    x <- Model_LLik(dir_i, 10, 1000, basis_degree, boundary_knots, internal_knots, time, Y)
+    x <- FLLik(dir_i, 10, basis_degree, boundary_knots, internal_knots, time, Y)
     avg_llik[i, j] <- mean(x[2000:10000])
     print(i)
     print(j)

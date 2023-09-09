@@ -73,13 +73,11 @@ est1 <- BHDFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
 ## Run function
 est2 <- BHDFMMM_Theta_est(tot_mcmc_iters, k, Y, time, n_funct,
                           basis_degree, n_eigen, boundary_knots,
-                          internal_knots, est1$Z, est1$nu)
+                          internal_knots, est1)
 dir <- "./HD_trace"
 
 MCMC.chain <-BHDFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                                 basis_degree, n_eigen, boundary_knots,
-                                internal_knots, est1$Z, est1$pi, est1$alpha_3,
-                                est2$delta, est2$gamma, est2$Phi, est2$A,
-                                est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir)
+                                internal_knots, est1, est2, dir = dir)
 
 

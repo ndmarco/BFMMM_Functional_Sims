@@ -2,7 +2,7 @@ library(funFEM)
 ### Real Case study
 library(BayesFMMM)
 
-setwd("")
+setwd("/Users/nicholasmarco/Documents")
 
 #################################################################
 ## Change relevant directories and make folders before running ##
@@ -77,16 +77,21 @@ plot(fa_model$loadings[,2])
 #
 # m2 <- mocca(data, K = 2,q=8,h=1,lambda=1e-10,n.cores=2,EMstep.tol=1e-3)
 # m2
+
+
+##########################
+## Clustering Analysis ###
+##########################
 basis <- create.bspline.basis(c(6,14), basis = 50, norder = 6)
 fdobj <- smooth.basis(seq(6,14, 0.25), t(Y), basis)$fd
-res<- funFEM(fdobj, K = 2)
+res<- funFEM(fdobj, K = 4)
 par(mfrow=c(1,2))
 #plot(fdobj, color=res$cls)
 fdmeans <- fdobj
 fdmeans$coefs <- t(res$prms$my)
 plot(fdmeans, col=1:max(res$cls), lwd=2, xlab = "Frequency", ylab = " ")
 
-matplot(seq(6,14,0.25), t(Y[1:10,]), type = "l", col = res$cls[1:10],xlab = "Frequency", ylab = " " )
+matplot(seq(6,14,0.25), t(Y[1:10,]), type = "l", col = res$cls[1:10], xlab = "Frequency", ylab = " " )
 
 res1<- funFEM(fdobj, K = 3)
 res2<- funFEM(fdobj, K = 4)
@@ -97,9 +102,9 @@ par(mfrow=c(1,2))
 #plot(fdobj, color=res$cls)
 fdmeans <- fdobj
 fdmeans$coefs <- t(res$prms$my)
-plot(fdmeans, col=1:max(res$cls), lwd=2, xlab = "Frequency", ylab = " ")
+plot(fdmeans, col=1:max(res$cls),  lty = 1:max(res$cls), lwd=2, xlab = "Frequency", ylab = "Relative Power", cex.lab = 1.25, cex.axis = 1.25)
 
-matplot(seq(6,14,0.25), t(Y[1:10,]), type = "l", col = res$cls[1:10],xlab = "Frequency", ylab = " " )
+matplot(seq(6,14,0.25), t(Y[1:10,]), type = "l", col = res$cls[1:10], lty = res$cls[1:10], xlab = "Frequency", ylab = "Relative Power", lwd = 1.5,  cex.lab = 1.25, cex.axis = 1.25)
 
 fun_pca <- pca.fd(fdobj,nharm = 2)
 plot(fun_pca$harmonics)

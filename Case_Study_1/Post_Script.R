@@ -3,7 +3,7 @@ library(BayesFMMM)
 #################################################
 ## Change relevant directories  before running ##
 #################################################
-setwd()
+setwd("/Users/nicholasmarco/Documents")
 
 ### Peak alpha data
 library(pracma)
@@ -40,7 +40,7 @@ load("./pa.dat.Rdata")
 out1 <- unique(pa.dat$func)
 out3 <- unique(pa.dat$reg)
 matplot(matrix(pa.dat$y, nrow = length(out1)), type = "l") # data
-trapz(out1, pa.dat$y[1:33]) # all functional observations integrate to 1 (normalized across electordes, subjects)
+trapz(out1, pa.dat$y[1:33]) # all functional observations integrate to 1 (normalized across electrodes, subjects)
 
 ### Convert to wide format
 Y <- pa.dat
@@ -63,52 +63,60 @@ n_eigen <- 3
 boundary_knots <- c(6, 14)
 internal_knots <- c(7.6, 9.2, 10.8, 12.4)
 time <- seq(6, 14, 0.01)
-dir <- "./trace/"
+dir <- "/Users/nicholasmarco/Downloads/trace/"
+
 ### get credible intervals for mean
-mean_1 <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 3)
+
+### Pointwise CI for mean of feature 1
+mean_1 <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 1)
 plot(time,mean_1$CI_50, type = 'l')
 lines(time, mean_1$CI_Lower, col = "red")
 lines(time, mean_1$CI_Upper, col = "red")
 
-mean_1s <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 2, simultaneous = T)
+### Simultaneous CI for mean of feature 1
+mean_1s <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 1, simultaneous = T)
 
-mean_2 <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 1)
-plot(time,mean_2$CI_50, type = 'l', xlab = "Frequency (Hz)", ylab = "Power", ylim = c(0, 0.4))
-lines(time,mean_2$CI_025, col = "red")
-lines(time,mean_2$CI_975, col = "red")
+### Pointwise CI for mean of feature 2
+mean_2 <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 2)
+plot(time,mean_2$CI_50, type = 'l', xlab = "Frequency (Hz)", ylab = "Power")
+lines(time,mean_2$CI_Lower, col = "red")
+lines(time,mean_2$CI_Upper, col = "red")
 
-mean_2s <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 1, simultaneous = T)
+### Pointwise CI for mean of feature 2
+mean_2s <- FMeanCI(dir, 50, time, basis_degree, boundary_knots, internal_knots, 2, simultaneous = T)
 
 
 predframe <- data.frame(freq = time,
                         median=mean_1$CI_50,lwr=mean_1$CI_Lower,upr=mean_1$CI_Upper, lwr_s = mean_1s$CI_Lower, upr_s = mean_1s$CI_Upper)
+# Plot CIs for mean of feature 1
 p1 <- ggplot(predframe, aes(freq, median))+
   geom_line(col = "blue")+
-  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Power") +
-  xlab("Frequency (Hz)") + ylim(c(-0.1, 0.65)) + xlim(c(6,14)) + ggtitle("Mean 1") +
+  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
+  xlab("Frequency (Hz)") + ylim(c(-0, 0.5)) + xlim(c(6,14)) + ggtitle("Mean 1") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         plot.title = element_text(hjust = 0.5))
 
 predframe <- data.frame(freq = time,
                         median=mean_2$CI_50,lwr=mean_2$CI_Lower,upr=mean_2$CI_Upper, lwr_s = mean_2s$CI_Lower, upr_s = mean_2s$CI_Upper)
+
+# Plot CIs for mean of feature 2
 p2<- ggplot(predframe, aes(freq, median))+
   geom_line(col = "blue")+
-  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey") + ylab("Power")+
-  xlab("Frequency (Hz)") + ylim(c(0, 0.35)) + xlim(c(6,14)) + ggtitle("Mean 2") +
+  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey") + ylab("Relative Power")+
+  xlab("Frequency (Hz)") + ylim(c(0, 0.3)) + xlim(c(6,14)) + ggtitle("Mean 2") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         plot.title = element_text(hjust = 0.5))
 
-grid.arrange(p1, p2, ncol = 2)
-
 
 Z_post <- ZCI(dir, 50)
-data_Z <- data.frame("Cluster 1" = Z_post$CI_50[,2], "Clinical Diagnosis" = demDat$Group)
+data_Z <- data.frame("Cluster 1" = Z_post$CI_50[,1], "Clinical Diagnosis" = demDat$Group)
 data_Z$Clinical.Diagnosis[data_Z$Clinical.Diagnosis == 2] <- "ASD"
 data_Z$Clinical.Diagnosis[data_Z$Clinical.Diagnosis == 1] <- "TD"
 
-ggplot(data= data_Z, aes(x = `Cluster.1` , y = Clinical.Diagnosis)) + geom_violin(trim = F, xlim = c(0,1)) + geom_point() + xlab("Cluster 1") + ylab("Clinical Diagnosis") +
+# Plot estimated allocation parameters
+p3 <- ggplot(data= data_Z, aes(x = `Cluster.1` , y = Clinical.Diagnosis)) + geom_violin(trim = F, xlim = c(0,1)) + geom_point() + xlab("Cluster 1") + ylab("Clinical Diagnosis") +
   stat_summary(
     geom = "point",
     fun.x = "mean",
@@ -119,15 +127,132 @@ ggplot(data= data_Z, aes(x = `Cluster.1` , y = Clinical.Diagnosis)) + geom_violi
                                         panel.background = element_blank(),axis.line = element_line(colour = "black"),
                                         plot.title = element_text(hjust = 0.5))
 
-data_VIQ <- data_Z <- data.frame("Cluster 1" = Z_post$CI_50[,3], "VIQ" = demDat$VIQ)
+# Visualize CIs for mean of feature 1 and 2
+grid.arrange(p1, p2, p3, layout_matrix = rbind(c(1,2),c(1,2), c(1,2), c(3,3),c(3,3)))
+
+# Look how Verbal IQ correlated with cluster allocation
+data_VIQ <- data_Z <- data.frame("Cluster 1" = Z_post$CI_50[,2], "VIQ" = demDat$VIQ)
 p1 <- ggplot(data= data_Z, aes(x = `Cluster.1` , y = VIQ)) + geom_point() + xlab("Cluster 1") + ylab("Verbal IQ") +
   geom_smooth(method='lm', colour = "red") + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
                                                    panel.background = element_blank(),axis.line = element_line(colour = "black"),
                                                    plot.title = element_text(hjust = 0.5))
-data_NVIQ <- data_Z <- data.frame("Cluster 1" = Z_post$CI_50[,3], "NVIQ" = demDat$NVIQ)
+
+# Look how non-verbal IQ correlated with cluster allocation
+data_NVIQ <- data_Z <- data.frame("Cluster 1" = Z_post$CI_50[,2], "NVIQ" = demDat$NVIQ)
 p2 <- ggplot(data= data_Z, aes(x = `Cluster.1` , y = NVIQ)) + geom_point() + xlab("Cluster 1") + ylab("Nonverbal IQ") +
   geom_smooth(method='lm', colour = "red") + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
                                                    panel.background = element_blank(),axis.line = element_line(colour = "black"),
                                                    plot.title = element_text(hjust = 0.5))
 
-grid.arrange(p1, p2, ncol = 2)
+grid.arrange(p1, p2)
+
+
+
+## Posterior Predictive Check
+time <- seq(6, 14, 0.25)
+time <- rep(list(time), 97)
+SampPaths <- FSamplePaths(dir, 50, basis_degree, boundary_knots, internal_knots, time)
+SampPaths_simultaneous <- FSamplePaths(dir, 50, basis_degree, boundary_knots, internal_knots, time, simultaneous = T)
+
+
+time <- seq(6, 14, 0.25)
+i <- 1
+predframe <- data.frame(freq = time, Y = Y[[i]],
+                        median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
+                        upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+# Plot CIs for mean of feature 1
+p1 <- ggplot(predframe, aes(freq, Y))+
+  geom_line(col = "blue")+
+  geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
+  xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 1") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))
+
+time <- seq(6, 14, 0.25)
+i <- 2
+predframe <- data.frame(freq = time, Y = Y[[i]],
+                        median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
+                        upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+# Plot CIs for mean of feature 1
+p2 <- ggplot(predframe, aes(freq, Y))+
+  geom_line(col = "blue")+
+  geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
+  xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 2") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))
+
+time <- seq(6, 14, 0.25)
+i <- 3
+predframe <- data.frame(freq = time, Y = Y[[i]],
+                        median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
+                        upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+
+# Plot CIs for mean of feature 1
+p3 <- ggplot(predframe, aes(freq, Y))+
+  geom_line(col = "blue")+
+  geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
+  xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 3") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))
+
+time <- seq(6, 14, 0.25)
+i <- 4
+predframe <- data.frame(freq = time, Y = Y[[i]],
+                        median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
+                        upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+
+# Plot CIs for mean of feature 1
+p4 <- ggplot(predframe, aes(freq, Y))+
+  geom_line(col = "blue")+
+  geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
+  xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 4") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))
+
+
+
+time <- seq(6, 14, 0.25)
+i <- 5
+predframe <- data.frame(freq = time, Y = Y[[i]],
+                        median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
+                        upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+# Plot CIs for mean of feature 1
+p5 <- ggplot(predframe, aes(freq, Y))+
+  geom_line(col = "blue")+
+  geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
+  xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 5") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))
+
+time <- seq(6, 14, 0.25)
+i <- 6
+predframe <- data.frame(freq = time, Y = Y[[i]],
+                        median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
+                        upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+# Plot CIs for mean of feature 1
+p6 <- ggplot(predframe, aes(freq, Y))+
+  geom_line(col = "blue")+
+  geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
+  xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 6") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        plot.title = element_text(hjust = 0.5))
+
+grid.arrange(p1, p2, p3, p4, p5, p6, nrow = 2)

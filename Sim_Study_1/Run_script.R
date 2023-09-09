@@ -1,20 +1,25 @@
-library(BayesFMMM)
+## Load relevant packages
 library(MASS)
 library(DirichletReg)
+library(devtools)
+library(future.apply)
 
-### Set working dir
-setwd()
+# Install BFMMM package from github
+# If already installed, do not run the following line
+install_github('ndmarco/BayesFMMM')
 
-n_obs_vec <- c(40, 80, 160)
-for(n in 1:3){
-  dir.create(paste0(n_obs_vec[n],"_obs"))
-  for(iter in 1:50){
+library(BayesFMMM)
+
+run_sim <- function(iter){
+  set.seed(iter)
+  n_obs_vec <- c(40, 80, 160)
+  for(n in 1:length(n_obs_vec)){
+    dir.create(paste0(n_obs_vec[n],"_obs"))
     dir.create(paste0(n_obs_vec[n],"_obs/sim",iter))
-    ## Generate Data
     n_obs <- n_obs_vec[n]
     Y <- readRDS(system.file("test-data", "Sim_data.RDS", package = "BayesFMMM"))
     time <- readRDS(system.file("test-data", "time.RDS", package = "BayesFMMM"))
-    
+
     ## Set Hyperparameters
     tot_mcmc_iters <- 150
     n_try <- 1
@@ -24,12 +29,14 @@ for(n in 1:3){
     n_eigen <- 3
     boundary_knots <- c(0, 1000)
     internal_knots <- c(200, 400, 600, 800)
-    
-    ## Run function
+
+    ## Run function to get B splines
     x <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                                  basis_degree, n_eigen, boundary_knots,
                                  internal_knots)
     B <- x$B[[1]]
+
+    # Specify parameters for generating functions
     nu <- matrix(0,nrow =2, ncol = 8)
     p <- matrix(0, 8, 8)
     for(i in 1:8){
@@ -40,7 +47,7 @@ for(n in 1:3){
         p[i,i-1] = -1
       }
     }
-    
+
     nu[1,] <- mvrnorm(n=1, mu = seq(6,-8, -2), Sigma = 4*p)
     nu[2,] <- mvrnorm(n=1, mu = seq(-8, 6, 2), Sigma = 4*p)
     decomp <- svd(nu, nv = 8)
@@ -58,9 +65,9 @@ for(n in 1:3){
     Phi[,,1] <- matrix(Phi_1, nrow = 2)
     Phi[,,2] <- matrix(Phi_2, nrow = 2)
     Phi[,,3] <- matrix(Phi_3, nrow = 2)
-    
+
     chi <- matrix(rnorm(n_obs *3, 0, 1), ncol = 3, nrow=n_obs)
-    
+
     Z <- matrix(0, nrow = n_obs, ncol = 2)
     alpha <- c(10, 1)
     for(i in 1:(n_obs * 0.3)){
@@ -74,13 +81,15 @@ for(n in 1:3){
     for(i in (n_obs * 0.6 + 1):n_obs){
       Z[i,] <- rdirichlet(1, alpha)
     }
-    
+
     y <- rep(0,100)
     y <- rep(list(y), n_obs)
     time <- time[[1]]
     time <- rep(list(time), n_obs)
+
+    # Generate the observed sample paths
     for(i in 1:n_obs){
-      mean = rep(0,10)
+      mean = rep(0,100)
       for(j in 1:2){
         mean = mean + Z[i,j] * B %*% nu[j,]
         for(m in 1:3){
@@ -89,12 +98,12 @@ for(n in 1:3){
       }
       y[[i]] = mvrnorm(n = 1, mean, diag(0.001, 100))
     }
-    
+
     x <- list("y" = y, "nu" = nu, "Z" = Z, "Phi" = Phi, "Chi" = chi)
-    
+
     saveRDS(x, paste("./", n_obs_vec[n],"_obs/sim",iter, "/truth.RDS", sep = ""))
-    
-    
+
+
     ## Set Hyperparameters
     tot_mcmc_iters <- 2000
     n_try <- 50
@@ -105,7 +114,7 @@ for(n in 1:3){
     boundary_knots <- c(0, 1000)
     internal_knots <- c(200, 400, 600, 800)
     Y <-y
-    
+
     ## Get Estimates of Z and nu
     est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                                     basis_degree, n_eigen, boundary_knots,
@@ -115,21 +124,35 @@ for(n in 1:3){
     ## Get estimates of other parameters
     est2 <- BFMMM_Theta_est(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                             basis_degree, n_eigen, boundary_knots,
-                            internal_knots, est1$Z, est1$nu)
+                            internal_knots, est1)
     dir_i <- paste("./", n_obs_vec[n],"_obs/sim",iter, "/", sep="")
     tot_mcmc_iters <- 500000
     MCMC.chain <-BFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                                   basis_degree, n_eigen, boundary_knots,
-                                  internal_knots, est1$Z, est1$pi, est1$alpha_3,
-                                  est2$delta, est2$gamma, est2$Phi, est2$A,
-                                  est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir_i,
+                                  internal_knots, est1, est2, dir = dir_i,
                                   thinning_num = 100, r_stored_iters = 10000)
   }
 }
 
 
+##### Run Simulation
 
+### Set working dir
+setwd("/Users/nicholasmarco/Documents/BFMMM_Sim1")
 
+ncpu <- min(5, availableCores())
+#
+plan(multisession, workers = ncpu)
+
+already_ran <- dir(paste0(getwd(), "/160_obs"))
+to_run <- which(!paste0("sim", 1:50) %in% already_ran)
+seeds <- to_run
+start_time <- Sys.time()
+future_lapply(seeds, function(this_seed) run_sim(this_seed))
+end_time <- Sys.time()
+
+# get elapsed time of the simulation
+total_time <- end_time - start_time
 
 
 

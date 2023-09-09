@@ -1,6 +1,12 @@
+library(devtools)
+# Install BFMMM package from github
+# If already installed, do not run the following line
+install_github('ndmarco/BayesFMMM')
+
+library(BayesFMMM)
 library(MASS)
 library(DirichletReg)
-library(BayesFMMM)
+library(future.apply)
 
 ############################################
 ## Before running, change the directories ##
@@ -25,14 +31,9 @@ library(BayesFMMM)
 ######## trace10
 ## data
 
-setwd()
-dir.create("2_clusters")
-dir.create("3_clusters")
-dir.create("4_clusters")
-dir.create("5_clusters")
-dir.create("data")
 
-for(q in 1:10){
+run_sim <- function(iter){
+  set.seed(iter)
   ## Load sample data
   Y <- readRDS(system.file("test-data", "Sim_data.RDS", package = "BayesFMMM"))
   time <- readRDS(system.file("test-data", "time.RDS", package = "BayesFMMM"))
@@ -111,7 +112,7 @@ for(q in 1:10){
   }
   dir.create("data")
   x <- list("y" = y, "nu" = nu, "Z" = Z, "Phi" = Phi, "Chi" = chi)
-  saveRDS(x, paste("./data/data", q, ".RDS", sep = ""))
+  saveRDS(x, paste("./data/data", iter, ".RDS", sep = ""))
   Y <- y
 
 
@@ -126,7 +127,7 @@ for(q in 1:10){
   n_eigen <- 3
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
-  dir.create(paste0("2_clusters/trace", q))
+  dir.create(paste0("2_clusters/trace", iter))
 
   ## Get Estimates of Z and nu
   est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
@@ -137,14 +138,12 @@ for(q in 1:10){
   ## Get estimates of other parameters
   est2 <- BFMMM_Theta_est(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                           basis_degree, n_eigen, boundary_knots,
-                          internal_knots, est1$Z, est1$nu)
-  dir_i <- paste( "./2_clusters/trace", q, "/", sep="")
+                          internal_knots, est1)
+  dir_i <- paste( "./2_clusters/trace", iter, "/", sep="")
   tot_mcmc_iters <- 100000
   MCMC.chain <-BFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                                 basis_degree, n_eigen, boundary_knots,
-                                internal_knots, est1$Z, est1$pi, est1$alpha_3,
-                                est2$delta, est2$gamma, est2$Phi, est2$A,
-                                est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir_i,
+                                internal_knots, est1, est2, dir = dir_i,
                                 thinning_num = 10, r_stored_iters = 10000)
 
   ####### 3 Clusters #########
@@ -158,7 +157,7 @@ for(q in 1:10){
   n_eigen <- 3
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
-  dir.create(paste0("3_clusters/trace", q))
+  dir.create(paste0("3_clusters/trace", iter))
 
   ## Get Estimates of Z and nu
   est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
@@ -169,14 +168,12 @@ for(q in 1:10){
   ## Get estimates of other parameters
   est2 <- BFMMM_Theta_est(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                           basis_degree, n_eigen, boundary_knots,
-                          internal_knots, est1$Z, est1$nu)
-  dir_i <- paste("./3_clusters/trace", q, "/", sep="")
+                          internal_knots, est1)
+  dir_i <- paste("./3_clusters/trace", iter, "/", sep="")
   tot_mcmc_iters <- 100000
   MCMC.chain <-BFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                                 basis_degree, n_eigen, boundary_knots,
-                                internal_knots, est1$Z, est1$pi, est1$alpha_3,
-                                est2$delta, est2$gamma, est2$Phi, est2$A,
-                                est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir_i,
+                                internal_knots, est1, est2, dir = dir_i,
                                 thinning_num = 10, r_stored_iters = 10000)
 
   ####### 4 Clusters #########
@@ -190,7 +187,7 @@ for(q in 1:10){
   n_eigen <- 3
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
-  dir.create(paste0("4_clusters/trace", q))
+  dir.create(paste0("4_clusters/trace", iter))
 
   ## Get Estimates of Z and nu
   est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
@@ -201,14 +198,12 @@ for(q in 1:10){
   ## Get estimates of other parameters
   est2 <- BFMMM_Theta_est(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                           basis_degree, n_eigen, boundary_knots,
-                          internal_knots, est1$Z, est1$nu)
-  dir_i <- paste("./4_clusters/trace", q, "/", sep="")
+                          internal_knots, est1)
+  dir_i <- paste("./4_clusters/trace", iter, "/", sep="")
   tot_mcmc_iters <- 100000
   MCMC.chain <-BFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                                 basis_degree, n_eigen, boundary_knots,
-                                internal_knots, est1$Z, est1$pi, est1$alpha_3,
-                                est2$delta, est2$gamma, est2$Phi, est2$A,
-                                est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir_i,
+                                internal_knots, est1, est2, dir = dir_i,
                                 thinning_num = 10, r_stored_iters = 10000)
 
   ####### 5 Clusters #########
@@ -222,7 +217,7 @@ for(q in 1:10){
   n_eigen <- 3
   boundary_knots <- c(0, 1000)
   internal_knots <- c(200, 400, 600, 800)
-  dir.create(paste0("5_clusters/trace", q))
+  dir.create(paste0("5_clusters/trace", iter))
 
   ## Get Estimates of Z and nu
   est1 <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
@@ -233,13 +228,56 @@ for(q in 1:10){
   ## Get estimates of other parameters
   est2 <- BFMMM_Theta_est(tot_mcmc_iters, n_try, k, Y, time, n_funct,
                           basis_degree, n_eigen, boundary_knots,
-                          internal_knots, est1$Z, est1$nu)
-  dir_i <- paste("./5_clusters/trace", q, "/", sep="")
+                          internal_knots, est1)
+  dir_i <- paste("./5_clusters/trace", iter, "/", sep="")
   tot_mcmc_iters <- 100000
   MCMC.chain <-BFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                                 basis_degree, n_eigen, boundary_knots,
-                                internal_knots, est1$Z, est1$pi, est1$alpha_3,
-                                est2$delta, est2$gamma, est2$Phi, est2$A,
-                                est1$nu, est1$tau, est2$sigma, est2$chi, dir = dir_i,
+                                internal_knots, est1, est2, dir = dir_i,
                                 thinning_num = 10, r_stored_iters = 10000)
 }
+
+############################################
+## Before running, change the directories ##
+############################################
+
+setwd()
+
+##File Structure should be as follows:
+
+## 2_clusters
+######## trace1
+######## ...
+######## trace10
+## 3_clusters
+######## trace1
+######## ...
+######## trace10
+## 4_clusters
+######## trace1
+######## ...
+######## trace10
+## 5_clusters
+######## trace1
+######## ...
+######## trace10
+## data
+dir.create("2_clusters")
+dir.create("3_clusters")
+dir.create("4_clusters")
+dir.create("5_clusters")
+dir.create("data")
+
+ncpu <- min(5, availableCores())
+#
+plan(multisession, workers = ncpu)
+
+already_ran <- dir(paste0(getwd(), "/5_clusters/"))
+to_run <- which(!paste0("trace", 1:10) %in% already_ran)
+seeds <- to_run
+start_time <- Sys.time()
+future_lapply(seeds, function(this_seed) run_sim(this_seed))
+end_time <- Sys.time()
+
+# get elapsed time of the simulation
+total_time <- end_time - start_time
