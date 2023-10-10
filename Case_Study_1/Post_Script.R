@@ -3,7 +3,7 @@ library(BayesFMMM)
 #################################################
 ## Change relevant directories  before running ##
 #################################################
-setwd("/Users/nicholasmarco/Documents")
+setwd("")
 
 ### Peak alpha data
 library(pracma)
@@ -154,17 +154,25 @@ time <- rep(list(time), 97)
 SampPaths <- FSamplePaths(dir, 50, basis_degree, boundary_knots, internal_knots, time)
 SampPaths_simultaneous <- FSamplePaths(dir, 50, basis_degree, boundary_knots, internal_knots, time, simultaneous = T)
 
+median_mean <- function(SampPaths, i){
+  med_mean <- rep(0, length(SampPaths$Mean_only_Path_trace[[i]][1,]))
+  for(j in 1:length(SampPaths$Mean_only_Path_trace[[i]][1,])){
+    med_mean[j] <- median(SampPaths$Mean_only_Path_trace[[i]][,j])
+  }
+  return(med_mean)
+}
 
 time <- seq(6, 14, 0.25)
 i <- 1
 predframe <- data.frame(freq = time, Y = Y[[i]],
                         median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
                         upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
-                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]], mean_only= median_mean(SampPaths, i))
 # Plot CIs for mean of feature 1
 p1 <- ggplot(predframe, aes(freq, Y))+
   geom_line(col = "blue")+
   geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_line(data= predframe, aes(freq, mean_only), col = "green") +
   geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
   xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 1") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -176,11 +184,12 @@ i <- 2
 predframe <- data.frame(freq = time, Y = Y[[i]],
                         median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
                         upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
-                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]], mean_only= median_mean(SampPaths, i))
 # Plot CIs for mean of feature 1
 p2 <- ggplot(predframe, aes(freq, Y))+
   geom_line(col = "blue")+
   geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_line(data= predframe, aes(freq, mean_only), col = "green") +
   geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
   xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 2") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -192,12 +201,13 @@ i <- 3
 predframe <- data.frame(freq = time, Y = Y[[i]],
                         median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
                         upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
-                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]], mean_only= median_mean(SampPaths, i))
 
 # Plot CIs for mean of feature 1
 p3 <- ggplot(predframe, aes(freq, Y))+
   geom_line(col = "blue")+
   geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_line(data= predframe, aes(freq, mean_only), col = "green") +
   geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
   xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 3") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -209,12 +219,13 @@ i <- 4
 predframe <- data.frame(freq = time, Y = Y[[i]],
                         median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
                         upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
-                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]], mean_only= median_mean(SampPaths, i))
 
 # Plot CIs for mean of feature 1
 p4 <- ggplot(predframe, aes(freq, Y))+
   geom_line(col = "blue")+
   geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_line(data= predframe, aes(freq, mean_only), col = "green") +
   geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
   xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 4") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -228,11 +239,12 @@ i <- 5
 predframe <- data.frame(freq = time, Y = Y[[i]],
                         median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
                         upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
-                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]], mean_only= median_mean(SampPaths, i))
 # Plot CIs for mean of feature 1
 p5 <- ggplot(predframe, aes(freq, Y))+
   geom_line(col = "blue")+
   geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_line(data= predframe, aes(freq, mean_only), col = "green") +
   geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
   xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 5") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -244,11 +256,12 @@ i <- 6
 predframe <- data.frame(freq = time, Y = Y[[i]],
                         median=SampPaths$CI_50[[i]],lwr=SampPaths$CI_Lower[[i]],
                         upr=SampPaths$CI_Upper[[i]], lwr_s = SampPaths_simultaneous$CI_Lower[[i]],
-                        upr_s = SampPaths_simultaneous$CI_Upper[[i]])
+                        upr_s = SampPaths_simultaneous$CI_Upper[[i]], mean_only= median_mean(SampPaths, i))
 # Plot CIs for mean of feature 1
 p6 <- ggplot(predframe, aes(freq, Y))+
   geom_line(col = "blue")+
   geom_line(data= predframe, aes(freq, median), col = "red") +
+  geom_line(data= predframe, aes(freq, mean_only), col = "green") +
   geom_ribbon(data=predframe,aes(ymin=lwr,ymax=upr),alpha=0.3, fill = "black") + geom_ribbon(data=predframe,aes(ymin=lwr_s,ymax=upr_s),alpha=0.4, fill = "dark grey")  + ylab("Relative Power") +
   xlab("Frequency (Hz)") + ylim(c(-0.1, 0.45)) + xlim(c(6,14)) + ggtitle("Patient 6") +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),

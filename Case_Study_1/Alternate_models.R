@@ -2,7 +2,7 @@ library(funFEM)
 ### Real Case study
 library(BayesFMMM)
 
-setwd("/Users/nicholasmarco/Documents")
+setwd("")
 
 #################################################################
 ## Change relevant directories and make folders before running ##

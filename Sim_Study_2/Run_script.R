@@ -8,30 +8,6 @@ library(MASS)
 library(DirichletReg)
 library(future.apply)
 
-############################################
-## Before running, change the directories ##
-############################################
-##File Structure should be as follows:
-
-## 2_clusters
-######## trace1
-######## ...
-######## trace10
-## 3_clusters
-######## trace1
-######## ...
-######## trace10
-## 4_clusters
-######## trace1
-######## ...
-######## trace10
-## 5_clusters
-######## trace1
-######## ...
-######## trace10
-## data
-
-
 run_sim <- function(iter){
   set.seed(iter)
   ## Load sample data
