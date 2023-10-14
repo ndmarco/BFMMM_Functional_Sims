@@ -10,7 +10,7 @@ library(reticulate)
 ###############################################################################
 
 ### Set working dir for 3 features
-setwd("")
+setwd()
 
 Y <- readRDS(system.file("test-data", "Sim_data.RDS", package = "BayesFMMM"))
 time <- readRDS(system.file("test-data", "time.RDS", package = "BayesFMMM"))
@@ -457,7 +457,7 @@ p9 <- ggplot(mu3_RMSE, aes(x=N, y=`R-MISE`)) + scale_y_continuous(labels = scale
   geom_boxplot() +  theme_bw() + theme(panel.border = element_blank(), axis.line = element_line(colour = "black"),
                                        legend.position = "none",plot.title = element_text(hjust = 0.5), text = element_text(size = 15))
 
-# Plot the RMSE for the allocation paramaeters
+# Plot the RMSE for the allocation parameters
 Z_RMSE <- matrix(0, 30, 2)
 Z_RMSE[1:10,1] <- err_Z[,1]
 Z_RMSE[1:10,2] <- 50
