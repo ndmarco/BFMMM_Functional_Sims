@@ -11,7 +11,7 @@ library(future.apply)
 
 # Install BFMMM package from github
 # If already installed, do not run the following line
-install_github('ndmarco/BayesFMMM')
+#install_github('ndmarco/BayesFMMM')
 
 library(BayesFMMM)
 
@@ -35,6 +35,8 @@ run_sim3 <- function(iter){
     n_eigen <- 3
     boundary_knots <- c(0, 1000)
     internal_knots <- c(200, 400, 600, 800)
+    Y[[1]] <- Y[[1]][seq(1,100, 2)]
+    time[[1]] <- time[[1]][seq(1,100, 2)]
 
     ## Run function to get B splines
     x <- BFMMM_Nu_Z_multiple_try(tot_mcmc_iters, n_try, k, Y, time, n_funct,
@@ -96,21 +98,21 @@ run_sim3 <- function(iter){
       Z[i,] <- rdirichlet(1, alpha)
     }
 
-    y <- rep(0,100)
+    y <- rep(0,50)
     y <- rep(list(y), n_obs)
     time <- time[[1]]
     time <- rep(list(time), n_obs)
 
     # Generate the observed sample paths
     for(i in 1:n_obs){
-      mean = rep(0,100)
+      mean = rep(0,50)
       for(j in 1:3){
         mean = mean + Z[i,j] * B %*% nu[j,]
         for(m in 1:3){
           mean = mean + Z[i,j] * chi[i,m] * B %*% Phi[j, ,m]
         }
       }
-      y[[i]] = mvrnorm(n = 1, mean, diag(0.001, 100))
+      y[[i]] = mvrnorm(n = 1, mean, diag(0.001, 50))
     }
 
     x <- list("y" = y, "nu" = nu, "Z" = Z, "Phi" = Phi, "Chi" = chi)
@@ -140,7 +142,7 @@ run_sim3 <- function(iter){
                             basis_degree, n_eigen, boundary_knots,
                             internal_knots, est1)
     dir_i <- paste("./", n_obs_vec[n],"_obs/sim",iter, "/", sep="")
-    tot_mcmc_iters <- 500000
+    tot_mcmc_iters <- 1000000
     MCMC.chain <-BFMMM_warm_start(tot_mcmc_iters, k, Y, time, n_funct,
                                   basis_degree, n_eigen, boundary_knots,
                                   internal_knots, est1, est2, dir = dir_i,
@@ -152,14 +154,14 @@ run_sim3 <- function(iter){
 ##### Run Simulation
 
 ### Set working dir (different than the main simulation study)
-setwd("")
+setwd()
 
 ncpu <- min(5, availableCores())
 #
 plan(multisession, workers = ncpu)
 
 already_ran <- dir(paste0(getwd(), "/200_obs"))
-to_run <- which(!paste0("sim", 1:10) %in% already_ran)
+to_run <- which(!paste0("sim", 1:25) %in% already_ran)
 seeds <- to_run
 start_time <- Sys.time()
 future_lapply(seeds, function(this_seed) run_sim3(this_seed))
